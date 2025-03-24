@@ -2,8 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
-
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
@@ -14,7 +12,7 @@ struct Node<T> {
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: Clone+std::cmp::PartialOrd> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -29,13 +27,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Clone+std::cmp::PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Clone+std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,16 +67,58 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+
+    pub fn get_clone(& self, index: u32) -> Option<T> {
+        self.get_ith_node_clone(self.start, index)
+    }
+
+    fn get_ith_node_clone(& self, node: Option<NonNull<Node<T>>>, index: u32) -> Option<T> {
+        match node {
+            None => None,
+            Some(next_ptr) => match index {
+                0 => Some(unsafe { (*next_ptr.as_ptr()).val.clone() }),
+                _ => self.get_ith_node_clone(unsafe { (*next_ptr.as_ptr()).next }, index - 1),
+            },
         }
+    }
+
+	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self{
+        //创建返回链表
+        let mut merge_list=LinkedList { length: 0, start:None, end: None };
+
+
+        let mut count_a:u32=0;
+        let mut count_b:u32=0;
+
+        
+        loop{
+        let val_a=list_a.get_clone(count_a).unwrap();
+        let val_b=list_b.get_clone(count_b).unwrap();
+        if val_a >val_b{
+            merge_list.add(val_b);
+            if count_b==list_b.length-1{ 
+                for i in count_a..list_a.length{
+                    merge_list.add(list_a.get_clone(count_a).unwrap());
+                    count_a+=1;
+                }
+                return  merge_list
+            }
+            count_b+=1;
+        }else {
+            merge_list.add(val_a);
+            if count_a==list_a.length-1{ 
+                for i in count_b..list_b.length{
+                    merge_list.add(list_b.get_clone(count_b).unwrap());
+                    count_b+=1;
+                }
+                return  merge_list
+            }
+            count_a+=1;
+        }
+    }
 	}
 }
+
 
 impl<T> Display for LinkedList<T>
 where
