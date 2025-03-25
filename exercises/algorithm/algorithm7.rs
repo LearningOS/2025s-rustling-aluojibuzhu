@@ -3,7 +3,9 @@
 	This question requires you to use a stack to achieve a bracket match
 */
 
-// I AM NOT DONE
+use std::cmp::Ordering;
+
+
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -31,8 +33,11 @@ impl<T> Stack<T> {
 		self.size += 1;
 	}
 	fn pop(&mut self) -> Option<T> {
-		// TODO
-		None
+		if self.size==0 {
+			return None;
+		}
+		self.size-=1;
+		self.data.pop()
 	}
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
@@ -101,9 +106,41 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 
 fn bracket_match(bracket: &str) -> bool
 {
-	//TODO
-	true
+	
+	let mut  bracker_kuohao: Stack<&str>=Stack::new();
+	let str_vec:Vec<char>=bracket.chars().collect();
+	for c in str_vec{
+		println!("{:?}",bracker_kuohao);
+		match c {
+			'('=>{bracker_kuohao.push("(");},
+			')'=>match bracker_kuohao.pop(){
+				None=>{println!("error");return false},
+				Some(kuohao)=>if Ordering::Equal!= kuohao.cmp("("){println!("{}",kuohao);return false;},
+			},
+			'['=>{bracker_kuohao.push("[");},
+			']'=>match bracker_kuohao.pop(){
+				None=>{println!("error");return false},
+				Some(kuohao)=>if Ordering::Equal!= kuohao.cmp("["){println!("{}",kuohao); return false;},
+			},
+			'{'=>{bracker_kuohao.push("{");},
+			'}'=>match bracker_kuohao.pop(){
+				None=>{println!("error");return false},
+				Some(kuohao)=>if Ordering::Equal!= kuohao.cmp("{"){println!("{}",kuohao);return false;},
+			},
+			_=>(),
+		}
+	}
+	
+	
+	if bracker_kuohao.size==0
+	{
+		return true
+	}
+	else {
+		return  false
+	}
 }
+
 
 #[cfg(test)]
 mod tests {
