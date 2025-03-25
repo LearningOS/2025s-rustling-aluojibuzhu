@@ -2,7 +2,7 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -15,7 +15,7 @@ struct Node<T> {
     prev: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T:Clone> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -31,13 +31,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T:Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T:Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -72,9 +72,34 @@ impl<T> LinkedList<T> {
             },
         }
     }
+    pub fn get_clone(& self, index: u32) -> Option<T> {
+        self.get_ith_node_clone(self.start, index)
+    }
+
+    fn get_ith_node_clone(& self, node: Option<NonNull<Node<T>>>, index: u32) -> Option<T> {
+        match node {
+            None => None,
+            Some(next_ptr) => match index {
+                0 => Some(unsafe { (*next_ptr.as_ptr()).val.clone() }),
+                _ => self.get_ith_node_clone(unsafe { (*next_ptr.as_ptr()).next }, index - 1),
+            },
+        }
+    }
+
 	pub fn reverse(&mut self){
 		// TODO
-	}
+        let list_len=self.length;
+        let mut temp_val:T;
+        let mut reverse_list=LinkedList::<T>::new();
+        
+        for i in(0..list_len).rev(){
+        temp_val=self.get_clone(i ).unwrap().clone();
+        reverse_list.add(temp_val);  
+    }
+
+    self.start=reverse_list.start;
+    self.end=reverse_list.end;
+}
 }
 
 impl<T> Display for LinkedList<T>

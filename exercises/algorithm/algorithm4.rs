@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
+
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -28,7 +28,7 @@ where
 
 impl<T> TreeNode<T>
 where
-    T: Ord,
+    T: Ord+Clone+std::fmt::Display,
 {
     fn new(value: T) -> Self {
         TreeNode {
@@ -41,7 +41,7 @@ where
 
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord+Clone+std::fmt::Display,
 {
 
     fn new() -> Self {
@@ -50,25 +50,73 @@ where
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        match self.root{
+            None=>self.root=Some(Box::new(TreeNode::new(value))),
+            Some(ref mut root)=>{
+            if root.value==value {return };
+             root.insert(value)},
+        }
     }
-
     // Search for a value in the BST
-    fn search(&self, value: T) -> bool {
-        //TODO
-        true
+    fn search(& self, value: T) -> bool {
+        match &self.root{
+            None=>return false,
+            Some(root)=>
+                match root.search(value){
+                    None=>return false,
+                    Some(_)=>true,
+                },
+        }    
     }
 }
 
 impl<T> TreeNode<T>
 where
-    T: Ord,
+    T: Ord+Clone+std::fmt::Display,
 {
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
-        //TODO
+        if self.left.is_none(){
+            println!("the left{}",value.clone());
+            let node =Box::new(TreeNode::new(value));
+            self.left=Some(node);
+            return;
+        }else if self.right.is_none(){
+            println!("the right{}",value.clone());
+            let node =Box::new(TreeNode::new(value));
+            self.right=Some(node);
+
+            return;
+        }
+        if let Some(ref mut left )=self.left{
+            left.insert(value);
+        }
+    }
+
+    fn search(&self,value: T)->Option<bool>{
+        if self.value==value{
+            return Some(true)
+        }
+        match &self.left{
+            None=>(),
+            Some(left)=> 
+                match left.search(value.clone()){
+                    None=>(),
+                    Some(x)=> return Some(x),
+                },
+        }
+        match &self.right{
+            None=>(),
+            Some(right)=> 
+                match right.search(value.clone()){
+                    None=>(),
+                    Some(x)=> return Some(x),
+                },
+        }
+        return None
     }
 }
+
 
 
 #[cfg(test)]
